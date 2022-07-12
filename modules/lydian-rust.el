@@ -6,7 +6,7 @@
 
 (use-package rust-mode
 	:config
-	(rust-enable-format-on-save))
+	(rust-enable-format-on-save t))
 
 (use-package flycheck-rust)
 
