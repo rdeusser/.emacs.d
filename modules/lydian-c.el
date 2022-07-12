@@ -12,8 +12,7 @@
 
 (setq lydian-c-mode-hook 'lydian-c-mode-defaults)
 
-;; this will affect all modes derived from c-mode, like
-;; java-mode, php-mode, etc
+;; This will affect all modes derived from c-mode, like java-mode, php-mode, etc.
 (add-hook 'c-mode-hook (lambda ()
                            (run-hooks 'lydian-c-mode-hook)))
 

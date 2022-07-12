@@ -4,17 +4,16 @@
 
 ;;; Code:
 
-;; These packages are used everywhere
 (use-package s)
 (use-package f)
 (use-package diminish)
 (use-package bind-key)
 
-;; reduce the frequency of garbage collection by making it happen on
-;; each 50MB of allocated data (the default is on every 0.76MB)
+;; Reduce the frequency of garbage collection by making it happen on each 50MB of allocated data (the default is on
+;; every 0.76MB).
 (setq gc-cons-threshold 50000000)
 
-;; warn when opening files bigger than 100MB
+;; Warn when opening files bigger than 100MB.
 (setq large-file-warning-threshold 100000000)
 
 (defun wrap-with (s)
@@ -24,6 +23,9 @@
              arg)
          (interactive "P")
          (sp-wrap-with-pair ,s)))
+
+;; I don't use tramp.
+(setq tramp-mode nil)
 
 (provide 'lydian-core)
 
