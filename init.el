@@ -1,92 +1,42 @@
-;; Uncomment to debug errors
-;;(setq debug-on-error t)
+(setq debug-on-error nil)
 
-(setq package-enable-at-startup nil)
+(defvar my/system-dir (file-name-directory load-file-name)
+  "The root dir.")
 
-(defvar bootstrap-version)
-(let ((bootstrap-file
-       (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
-      (bootstrap-version 5))
-  (unless (file-exists-p bootstrap-file)
-    (with-current-buffer
-        (url-retrieve-synchronously
-         "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
-         'silent 'inhibit-cookies)
-      (goto-char (point-max))
-      (eval-print-last-sexp)))
-  (load bootstrap-file nil 'nomessage))
+(defvar my/core-dir (expand-file-name "core/" my/system-dir)
+  "This directory houses all of the core functionality.")
 
-(require 'use-package)
+(defvar my/modules-dir (expand-file-name  "modules/" my/system-dir)
+  "This directory houses all of the built-in modules.")
 
-(straight-use-package 'use-package)
-(setq straight-use-package-by-default t)
+(defvar my/savehist-dir (expand-file-name "savehist/" my/system-dir)
+  "This folder stores all the automatically generated save/history-files.")
 
-(use-package auto-package-update
-  :config
-  (setq auto-package-update-delete-old-versions t)
-  (setq auto-package-update-hide-results t)
-  (auto-package-update-maybe))
+(defvar my/backup-dir (expand-file-name "backup/" my/system-dir)
+  "This folder stores all the automatically generated backup files.")
 
-(setq visible-bell t)
-(setq ring-bell-function 'ignore)
+(defvar my/themes-dir (expand-file-name "themes/" my/system-dir)
+  "This folder stores all the users' themes.")
 
-;; Always load newest byte code.
-(setq load-prefer-newer t)
+(unless (file-exists-p my/savehist-dir)
+  (make-directory my/savehist-dir))
 
-(defvar root-dir (file-name-directory load-file-name)
-    "The root dir.")
-(defvar core-dir (expand-file-name "core" root-dir)
-    "This directory houses all of the core functionality.")
-(defvar modules-dir (expand-file-name  "modules" root-dir)
-    "This directory houses all of the built-in modules.")
-(defvar savefile-dir (expand-file-name "savefile" root-dir)
-    "This folder stores all the automatically generated save/history-files.")
-(defvar themes-dir (expand-file-name "themes" root-dir)
-    "This folder stores all the users' themes.")
-
-(unless (file-exists-p savefile-dir)
-    (make-directory savefile-dir))
+(unless (file-exists-p my/backup-dir)
+  (make-directory my/backup-dir))
 
 ;; Add directories to Emacs's `load-path'.
-(add-to-list 'load-path core-dir)
-(add-to-list 'load-path modules-dir)
-(add-to-list 'custom-theme-load-path themes-dir)
+(add-to-list 'load-path my/core-dir)
+(add-to-list 'load-path my/modules-dir)
+(add-to-list 'custom-theme-load-path my/themes-dir)
 
-(message "Loading core...")
-
-(require 'lydian-core)
-(require 'lydian-ui)
-(require 'lydian-editor)
-(require 'lydian-global-keybindings)
-;; OSX specific settings
-(when (eq system-type 'darwin)
-    (require 'lydian-osx))
-
-(message "Loading modules...")
-
-(require 'lydian-bazel)
-(require 'lydian-c)
-(require 'lydian-company)
-(require 'lydian-dockerfile)
-(require 'lydian-emacs-lisp)
-(require 'lydian-eshell)
-(require 'lydian-git)
-(require 'lydian-go)
-(require 'lydian-ivy)
-(require 'lydian-json)
-(require 'lydian-lsp)
-(require 'lydian-markdown)
-(require 'lydian-protobuf)
-(require 'lydian-python)
-(require 'lydian-rust)
-(require 'lydian-terraform)
-(require 'lydian-toml)
-(require 'lydian-typescript)
-(require 'lydian-yaml)
-
-;; auto-compile emacs lisp source code
-(use-package auto-compile
-    :config (auto-compile-on-load-mode)
-    (auto-compile-on-save-mode))
-
-(message "Ready")
+(require 'core)
+(require 'editor)
+(require 'ui)
+(require 'modules)
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(custom-safe-themes
+   '("5f128efd37c6a87cd4ad8e8b7f2afaba425425524a68133ac0efd87291d05874" "4fda8201465755b403a33e385cf0f75eeec31ca8893199266a6aeccb4adedfa4" default)))
