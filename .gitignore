@@ -5,5 +5,5 @@
 !.gitignore
 !core
 !modules
-!themes
+!modules/lang
 !**/*.el
