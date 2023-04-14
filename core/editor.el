@@ -138,8 +138,7 @@ Version 2017-09-22 2020-09-08"
 (global-auto-revert-mode)
 
 (use-package crux
-  :bind (([remap kill-whole-line] . crux-smart-kill-line)
-	     ([remap move-beginning-of-line] . crux-move-beginning-of-line)
+  :bind (([remap move-beginning-of-line] . crux-move-beginning-of-line)
 	     ([(shift return)] . crux-smart-open-line)
 	     ("C-<backspace>" . crux-kill-line-backwards)
 	     ("C-c n" . crux-cleanup-buffer-or-region)
@@ -166,19 +165,34 @@ Version 2017-09-22 2020-09-08"
   :bind (([remap kill-ring-save] . easy-kill)
          ([remap mark-sexp] . easy-mark)))
 
-(use-package smartparens
-  :diminish smartparens-mode
-  :commands (smartparens-mode smartparens-strict-mode)
-  :bind ("<backspace>" . backward-delete-char)
+(use-package puni
+  :bind (("C-h" . puni-force-delete)
+         ("C-d" . puni-forward-delete-char)
+         ("DEL" . puni-backward-delete-char)
+         ("M-d" . puni-forward-kill-word)
+         ("M-DEL" . puni-backward-kill-word)
+         ("C-k" . puni-kill-line)
+         ("C-S-k" . puni-backward-kill-line))
   :init
-  (require 'smartparens-config)
-  (setq sp-show-pair-from-inside t
-        sp-show-pair-delay 0
-        sp-message-width nil)
-  (sp-local-pair 'prog-mode "{" nil :post-handlers '((indent-between-pair "RET")))
-  (sp-local-pair 'prog-mode "[" nil :post-handlers '((indent-between-pair "RET")))
-  (sp-local-pair 'prog-mode "(" nil :post-handlers '((indent-between-pair "RET")))
-  (smartparens-global-strict-mode))
+  (global-unset-key (kbd "C-c DEL"))
+  :config
+  (add-hook 'term-mode-hook #'puni-disable-puni-mode)
+  (puni-global-mode)
+  (electric-pair-mode))
+
+;; (use-package smartparens
+;;   :diminish smartparens-mode
+;;   :commands (smartparens-mode smartparens-strict-mode)
+;;   :bind ("<backspace>" . backward-delete-char)
+;;   :init
+;;   (require 'smartparens-config)
+;;   (setq sp-show-pair-from-inside t
+;;         sp-show-pair-delay 0
+;;         sp-message-width nil)
+;;   (sp-local-pair 'prog-mode "{" nil :post-handlers '((indent-between-pair "RET")))
+;;   (sp-local-pair 'prog-mode "[" nil :post-handlers '((indent-between-pair "RET")))
+;;   (sp-local-pair 'prog-mode "(" nil :post-handlers '((indent-between-pair "RET")))
+;;   (smartparens-global-strict-mode))
 
 (use-package aggressive-indent
   :init

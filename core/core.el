@@ -25,6 +25,11 @@
           (load-file (concat my/core-dir module))) (my/list-emacs-lisp-files my/core-dir))
   (smartparens-global-mode t))
 
+(defun kill-all-buffers ()
+  (interactive)
+  (mapcar 'kill-buffer (buffer-list))
+  (delete-other-windows))
+
 ;;; Hooks:
 
 ;; Make a shell script executable automatically on save.
