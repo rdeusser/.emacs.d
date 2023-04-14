@@ -1,4 +1,4 @@
-7;;; ui --- ui configuration.
+;;; ui --- ui configuration.
 
 ;;; Commentary:
 
@@ -72,13 +72,25 @@
 ;;   :config
 ;;   (modus-themes-load-vivendi))
 
-(use-package kaolin-themes
-  :config
-  (load-theme 'kaolin-bubblegum t))
-
-;; (use-package gruber-darker-theme
+;; (use-package kaolin-themes
 ;;   :config
-;;   (load-theme 'gruber-darker t))
+;;   (load-theme 'kaolin-bubblegum t))
+
+(use-package gruber-darker-theme
+  :config
+  (defvar after-load-theme-hook nil
+    "Hook to run after a color theme is loaded.")
+  (defadvice load-theme (after run-after-load-theme-hook activate)
+    "Run `after-load-theme-hook'."
+    (run-hooks 'after-load-theme-hook))
+  (defun customize-gruber-darker ()
+    "Customize gruber-darker theme."
+    (if (member 'gruber-darker custom-enabled-themes)
+        (custom-set-faces
+         '(font-lock-comment-face ((t (:foreground "#454545"))))
+         '(font-lock-comment-delimface ((t (:foreground "#454545")))))))
+  (add-hook 'after-load-theme-hook 'customize-gruber-darker)
+  (load-theme 'gruber-darker t))
 
 ;; Mode line menu.
 (use-package minions
