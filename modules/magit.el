@@ -9,6 +9,8 @@
 ;;; Code:
 
 (use-package magit)
+(use-package magit-section)
+(use-package compat)
 
 (provide 'magit)
 
