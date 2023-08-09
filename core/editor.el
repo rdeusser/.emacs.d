@@ -106,6 +106,9 @@ Version 2017-09-22 2020-09-08"
 ;; Set fill column to 80 by default (for comments only).
 (setq-default fill-column 80)
 
+;; Allows word wrapping.
+(setq-default word-wrap t)
+
 ;; Set auto-fill mode on in all major modes.
 (auto-fill-mode nil) ;; turn off for now
 (setq-default auto-fill-function 'do-auto-fill)
