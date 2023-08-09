@@ -267,6 +267,30 @@ Version 2017-09-22 2020-09-08"
   (add-to-list 'eglot-server-programs '(rust-ts-mode "rust-analyzer"))
   (add-to-list 'eglot-server-programs '(yaml-ts-mode "yaml-language-server" "--stdio")))
 
+(use-package minibuffer
+  :straight (:type built-in)
+  :custom
+  (completion-styles '(orderless))
+  (completion-category-defaults nil)
+  (completion-category-overrides '((file (styles basic partial-completion))))
+  (read-file-name-completion-ignore-case t)
+  (read-buffer-completion-ignore-case t)
+  (completion-ignore-case t)
+  (enable-recursive-minibuffers t)
+  (minibuffer-eldef-shorten-default t)
+  (resize-mini-windows t)
+  :init
+  (minibuffer-depth-indicate-mode)
+  (minibuffer-electric-default-mode)
+  :hook
+  (completion-list-mode . force-truncate-lines)
+  :config
+  (defun stealthily (fn &rest args)
+    "Apply FN to ARGS while inhibiting modification hooks."
+    (let ((inhibit-modification-hooks t))
+      (apply fn args)))
+  (advice-add 'minibuf-eldef-setup-minibuffer :around #'stealthily))
+
 (use-package marginalia
   :bind ((:map minibuffer-local-map
                ("M-A" . marginalia-cycle)))
@@ -417,23 +441,11 @@ Version 2017-09-22 2020-09-08"
       (corfu-mode 1)))
   (add-hook 'minibuffer-setup-hook #'corfu-enable-always-in-minibuffer 1))
 
-(use-package kind-icon
-  :if (display-graphic-p)
-  :after corfu
-  :custom
-  (kind-icon-use-icons t)
-  (kind-icon-default-face 'corfu-default) ;; to compute blended backgrounds correctly
-  (kind-icon-blend-background nil)
-  (kind-icon-blend-frac 0.08)
-  :config
-  (add-to-list 'corfu-margin-formatters #'kind-icon-margin-formatter)
-  ;; Add hook to reset cache so the icon colors match my theme.
-  (add-hook 'my/themes-hooks #'(lambda () (interactive) (kind-icon-reset-cache))))
-
 (use-package orderless
-  :custom
-  (completion-styles '(orderless basic))
-  (completion-category-overrides '((file (styles basic partial-completion)))))
+  :init
+  (setq completion-styles '(orderless basic)
+        completion-category-defaults nil
+        completion-category-overrides '((file (styles . (partial-completion))))))
 
 (use-package cape
   :bind (([tab] . completion-at-point)

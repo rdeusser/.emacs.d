@@ -97,6 +97,19 @@
   :config
   (minions-mode))
 
+(use-package kind-icon
+  :if (display-graphic-p)
+  :after corfu
+  :custom
+  (kind-icon-use-icons t)
+  (kind-icon-default-face 'corfu-default) ;; to compute blended backgrounds correctly
+  (kind-icon-blend-background nil)
+  (kind-icon-blend-frac 0.08)
+  :config
+  (add-to-list 'corfu-margin-formatters #'kind-icon-margin-formatter)
+  ;; Add hook to reset cache so the icon colors match my theme.
+  (add-hook 'my/themes-hooks #'(lambda () (interactive) (kind-icon-reset-cache))))
+
 (use-package doom-modeline
   :after (all-the-icons all-the-icons-completion)
   :init
