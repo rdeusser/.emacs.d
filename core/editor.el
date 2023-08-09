@@ -64,8 +64,8 @@ Version 2017-09-22 2020-09-08"
   (interactive "r*")
   (transient-mark-mode nil)
   (if (use-region-p)
-      (sp-delete-region start end)
-    (sp-backward-delete-char))
+      (puni-delete-active-region start end)
+    (puni-backward-delete-char))
   (transient-mark-mode))
 
 (defun indent-between-pair (&rest _ignored)
@@ -169,15 +169,13 @@ Version 2017-09-22 2020-09-08"
          ([remap mark-sexp] . easy-mark)))
 
 (use-package puni
-  :bind (("C-h" . puni-force-delete)
+  :bind (("C-c DEL" . puni-force-delete)
          ("C-d" . puni-forward-delete-char)
          ("DEL" . puni-backward-delete-char)
          ("M-d" . puni-forward-kill-word)
          ("M-DEL" . puni-backward-kill-word)
          ("C-k" . puni-kill-line)
          ("C-S-k" . puni-backward-kill-line))
-  :init
-  (global-unset-key (kbd "C-c DEL"))
   :config
   (add-hook 'term-mode-hook #'puni-disable-puni-mode)
   (puni-global-mode)
@@ -223,6 +221,9 @@ Version 2017-09-22 2020-09-08"
   (setq undo-tree-visualizer-lazy-drawing 50)
   (setq undo-tree-history-directory-alist `((".*" . ,my/savehist-dir)))
   :config
+  (defun prune-undo-tree ()
+    (interactive)
+    (setq buffer-undo-tree nil))
   (global-undo-tree-mode))
 
 (use-package avy
