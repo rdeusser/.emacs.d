@@ -15,6 +15,8 @@
 
 ;;; Code:
 
+(use-package python-mode)
+
 (provide 'python)
 
 ;;; python.el ends here
