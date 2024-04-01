@@ -57,7 +57,8 @@ uncommented, otherwise a new import will be added."
 
 (defun gopp ()
   "Adds github.com/k0kubun/pp/v3 to the list of imports for debugging."
-  (go-add-import "import \"github.com/k0kubun/pp/v3\""))
+  (interactive)
+  (go-add-import nil "github.com/k0kubun/pp/v3"))
 
 ;;; Hooks:
 
