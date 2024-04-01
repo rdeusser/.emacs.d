@@ -30,6 +30,10 @@
   (mapcar 'kill-buffer (buffer-list))
   (delete-other-windows))
 
+(defun turn-on-error-debugging ()
+  (interactive)
+  (setq debug-on-error (not debug-on-error)))
+
 ;;; Hooks:
 
 ;; Make a shell script executable automatically on save.
@@ -78,6 +82,8 @@
 
 ;; Auto save config.
 (setq auto-save-file-name-transforms `((".*" ,my/savehist-dir t)))
+
+(setq debug-on-error nil)
 
 (provide 'core)
 
