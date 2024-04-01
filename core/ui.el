@@ -113,7 +113,7 @@
   (add-hook 'my/themes-hooks #'(lambda () (interactive) (kind-icon-reset-cache))))
 
 (use-package simple-modeline
-  :custom
+  :init
   (defun simple-modeline-segment-line-count ()
     "Display the line count in the mode-line."
     (if (use-region-p)
