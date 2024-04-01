@@ -11,7 +11,7 @@
       (call-process-region start end "jq" t t t)
     (call-process-region (point-min) (point-max) "jq" t t t)))
 
-(defun jqfmt (start end)
+(defun jqfmt-minify (start end)
   "Format the current selection or buffer with jq and minify the result."
   (interactive "r")
   (if (use-region-p)
