@@ -85,6 +85,11 @@
 
 (setq debug-on-error nil)
 
+(defun force-debug (func &rest args)
+  (condition-case e
+      (apply func args)
+    ((debug error) (signal (car e) (cdr e)))))
+
 (provide 'core)
 
 ;;; core.el ends here

@@ -91,6 +91,32 @@ Version 2017-09-22 2020-09-08"
   (interactive)
   (ansi-color-apply-on-region (point-min) (point-max)))
 
+(defun format-buffer-with (command &rest args)
+  "Formats the current buffer with COMMAND with optional ARGS."
+  (setq current-point (point))
+  (let ((temp-buffer (generate-new-buffer " *temp*"))
+        (error-buffer (get-buffer-create (format "*%s-output*" command)))
+        (current-buffer (current-buffer)))
+    (with-current-buffer temp-buffer
+      (insert (buffer-string)))
+    (let ((exit-code (apply #'call-process-region (point-min) (point-max) command nil `(,temp-buffer t) nil args)))
+      (if (= exit-code 0)
+          (progn
+            (with-current-buffer current-buffer
+              (when (get-buffer error-buffer)
+                (quit-windows-on error-buffer))
+              (replace-buffer-contents temp-buffer))
+            (message (format "Buffer formatted with \"%s\"" (string-trim (format "%s %s" command (string-join args " "))))))
+        (progn
+          (with-current-buffer error-buffer
+            (read-only-mode 0)
+            (insert-buffer temp-buffer)
+            (special-mode)
+            (display-buffer error-buffer))
+          (error "%s formatting failed with exit code %s" command exit-code))))
+    (kill-buffer temp-buffer))
+  (goto-char current-point))
+
 ;;; Hooks:
 
 (add-hook 'before-save-hook #'xah-clean-whitespace)
