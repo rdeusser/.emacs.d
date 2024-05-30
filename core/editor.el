@@ -117,6 +117,31 @@ Version 2017-09-22 2020-09-08"
     (kill-buffer temp-buffer))
   (goto-char current-point))
 
+(defun delete-file-and-buffer ()
+  "Kill the current buffer and deletes the file it is visiting."
+  (interactive)
+  (let ((filename (buffer-file-name)))
+    (if filename
+        (if (y-or-n-p (concat "Do you really want to delete file " filename " ?"))
+            (progn
+              (delete-file filename)
+              (message "Deleted file %s." filename)
+              (kill-buffer)))
+      (message "Not a file visiting buffer!"))))
+
+(defun add-spaces-around-braces ()
+  "Ensure there is a space after '{{' and a space before '}}' in the buffer."
+  (interactive)
+  ;; Ensure space after {{
+  (goto-char (point-min))  ; Start at the beginning of the buffer
+  (while (re-search-forward "\\({{\\)\\([^ ]\\)" nil t)
+    (replace-match "\\1 \\2" nil nil))
+
+  ;; Ensure space before }}
+  (goto-char (point-min))  ; Start again at the beginning of the buffer
+  (while (re-search-forward "\\([^ ]\\)\\(}}\\)" nil t)
+    (replace-match "\\1 \\2" nil nil)))
+
 ;;; Hooks:
 
 (add-hook 'before-save-hook #'xah-clean-whitespace)
@@ -170,13 +195,15 @@ Version 2017-09-22 2020-09-08"
 ;; Revert buffers automatically when underlying files are changed externally.
 (global-auto-revert-mode)
 
+(use-package caser)
+
 (use-package crux
   :bind (([remap move-beginning-of-line] . crux-move-beginning-of-line)
 	     ([(shift return)] . crux-smart-open-line)
 	     ("C-DEL" . crux-kill-line-backwards)
 	     ("C-c n" . crux-cleanup-buffer-or-region)
 	     ("C-c e" . crux-eval-and-replace)
-	     ("C-c D" . crux-delete-file-and-buffer)
+	     ("C-c D" . delete-file-and-buffer)
 	     ("C-c r" . crux-rename-file-and-buffer))
   :config
   (crux-with-region-or-line kill-region)
@@ -481,9 +508,10 @@ Version 2017-09-22 2020-09-08"
 (use-package tempel
   :bind (("M-+" . tempel-complete) ;; Alternative tempel-expand
          ("M-*" . tempel-insert)
-         ("s-<up>" . tempel-next)
-         ("s-<down>" . tempel-previous))
+         ("s-<down>" . tempel-next)
+         ("s-<up>" . tempel-previous))
   :init
+  (setq tempel-path (expand-file-name "~/.config/emacs/templates/*.eld"))
   ;; Setup completion at point
   (defun tempel-setup-capf ()
     ;; Add the Tempel Capf to `completion-at-point-functions'.

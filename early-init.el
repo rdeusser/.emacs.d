@@ -23,9 +23,12 @@
   (require 'use-package))
 
 (when (eq system-type 'darwin)
+  (use-package exec-path-from-shell)
   (let ((path-from-shell (shell-command-to-string
 					      "/opt/homebrew/bin/fish --login -c 'string join : $PATH'"
 						  )))
     (setenv "PATH" path-from-shell)
-    (setq exec-path (split-string path-from-shell path-separator)))
-  (setenv "LIBRARY_PATH" "/opt/homebrew/opt/gcc/lib/gcc/12:/opt/homebrew/opt/libgccjit/lib/gcc/12:/opt/homebrew/opt/gcc/lib/gcc/12/gcc/aarch64-apple-darwin21/12"))
+    (setq exec-path (split-string path-from-shell path-separator))))
+  ;; (setenv "LIBRARY_PATH" "/opt/homebrew/opt/gcc/lib/gcc/12:/opt/homebrew/opt/libgccjit/lib/gcc/12:/opt/homebrew/opt/gcc/lib/gcc/12/gcc/aarch64-apple-darwin21/12"))
+
+

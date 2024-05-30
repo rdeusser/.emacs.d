@@ -1,8 +1,11 @@
-;;; core --- core configuration.
+;;; -*- lexical-binding: t -*-
+;;; core.el --- core configuration.
+
+;; Author: Robert Deusser
 
 ;;; Commentary:
 
-;;; Functions:
+;;; Code:
 
 (defun my/clear-savehist-dir ()
   (interactive)
@@ -34,12 +37,8 @@
   (interactive)
   (setq debug-on-error (not debug-on-error)))
 
-;;; Hooks:
-
 ;; Make a shell script executable automatically on save.
 (add-hook 'after-save-hook 'executable-make-buffer-file-executable-if-script-p)
-
-;;; Code:
 
 ;; Garbage collection optimizations.
 (setq gc-cons-threshold-original gc-cons-threshold)
@@ -83,13 +82,10 @@
 ;; Auto save config.
 (setq auto-save-file-name-transforms `((".*" ,my/savehist-dir t)))
 
-(setq debug-on-error nil)
-
 (defun force-debug (func &rest args)
   (condition-case e
       (apply func args)
     ((debug error) (signal (car e) (cdr e)))))
 
 (provide 'core)
-
 ;;; core.el ends here

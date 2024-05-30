@@ -9,12 +9,10 @@
 ;;; Code:
 
 (use-package treesit-auto
-  :straight '(treesit-auto :type git
-                           :host github
-                           :repo "renzmann/treesit-auto"
-                           :branch "main")
+  :custom
+  (treesit-auto-install 'prompt)
   :config
-  (setq treesit-auto-install 'prompt)
+  (treesit-auto-add-to-auto-mode-alist 'all)
   (global-treesit-auto-mode))
 
 ;;; treesit-auto.el ends here
