@@ -195,6 +195,19 @@ Version 2017-09-22 2020-09-08"
 ;; Revert buffers automatically when underlying files are changed externally.
 (global-auto-revert-mode)
 
+(use-package ediff
+  :straight nil
+  :custom
+  (csetq ediff-window-setup-function 'ediff-setup-windows-plain)
+  (csetq ediff-split-window-function 'split-window-horizontally)
+  (csetq ediff-diff-options "-w")
+  (winner-mode)
+  (add-hook 'ediff-after-quit-hook-internal 'winner-undo)
+  (defun my-ediff-hook ()
+    (ediff-setup-keymap)
+    (define-key ediff-mode-map "j" 'ediff-next-difference)
+    (define-key ediff-mode-map "k" 'ediff-previous-difference)))
+
 (use-package caser)
 
 (use-package crux
@@ -233,8 +246,10 @@ Version 2017-09-22 2020-09-08"
          ("M-DEL" . puni-backward-kill-word)
          ("C-k" . puni-kill-line)
          ("C-S-k" . puni-backward-kill-line)
-         ("C-M-n" . puni-forward-sexp)
-         ("C-M-p" . puni-backward-sexp))
+         ("C-M-n" . puni-end-of-sexp)
+         ("C-M-p" . puni-beginning-of-sexp)
+         ("C-M-b" . puni-beginning-of-sexp)
+         ("C-=" . puni-expand-region))
   :config
   (add-hook 'term-mode-hook #'puni-disable-puni-mode)
   (puni-global-mode)

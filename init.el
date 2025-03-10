@@ -43,7 +43,8 @@
  '(custom-safe-themes
    '("ba4ab079778624e2eadbdc5d9345e6ada531dc3febeb24d257e6d31d5ed02577"
      "5f128efd37c6a87cd4ad8e8b7f2afaba425425524a68133ac0efd87291d05874"
-     "4fda8201465755b403a33e385cf0f75eeec31ca8893199266a6aeccb4adedfa4" default)))
+     "4fda8201465755b403a33e385cf0f75eeec31ca8893199266a6aeccb4adedfa4" default))
+ '(yaml-pro-format-print-width 120))
 (put 'upcase-region 'disabled nil)
 (put 'downcase-region 'disabled nil)
 (custom-set-faces

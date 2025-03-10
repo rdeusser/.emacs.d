@@ -76,11 +76,12 @@
 (defun go-format-buffer ()
   "Format the current buffer with gofumpt and goimports."
   (interactive)
-  (format-buffer-with "gofumpt")
-  (format-buffer-with "goimports"))
+  (format-buffer-with "gofumpt"))
+;; (format-buffer-with "goimports")
 
 (defun go/before-save-hook ()
   "Runs gofumpt on the buffer before saving."
+  (setq go-ts-mode-indent-offset 4)
   (add-hook 'before-save-hook #'go-format-buffer -10 t))
 
 (defun go-add-import (arg import)
@@ -134,7 +135,7 @@ uncommented, otherwise a new import will be added."
   :hook (go-ts-mode . go/before-save-hook)
   :bind (:map go-ts-mode-map
               ("C-c l f" . #'go-format-buffer))
-  :init
+  :config
   (setq go-ts-mode-indent-offset 4))
 
 (use-package go-mode
@@ -151,6 +152,52 @@ uncommented, otherwise a new import will be added."
 
 ;;; go ends here
 
+;;; go-template --- Major mode for editing Go templates, inheriting from go-ts-mode.
+
+;;; Commentary:
+
+;;; Code:
+
+(require 'go-ts-mode) ;; Ensure go-ts-mode is available
+
+;; Define the syntax highlighting keywords for Go template expressions.
+(defvar go-template-keywords
+  '(("{{\\(.*?\\)}}" . font-lock-variable-name-face) ;; Go template delimiters
+    ("{{\\(if\\|else\\|end\\|range\\|with\\|block\\|define\\|template\\|.\\|len\\|and\\|or\\|not\\)}}"
+     . font-lock-keyword-face) ;; Template keywords
+    ("\\(true\\|false\\|nil\\)" . font-lock-constant-face) ;; Constants
+    ("{{[^{}]+}}" . font-lock-preprocessor-face))) ;; General Go template expression
+
+;; Define the Go template major mode.
+(define-derived-mode go-template-mode go-ts-mode "GoTemplate"
+  "A major mode for editing Go templates, inheriting from go-ts-mode."
+  (font-lock-add-keywords nil go-template-keywords) ;; Add template-specific keywords
+  (setq mode-name "GoTemplate")
+  (remove-hook 'before-save-hook 'go-format-buffer t)) ;; Disable go-format-buffer when the mode is activated
+
+;; Function to remove go-format-buffer from before-save-hook.
+(defun go-template-disable-go-format ()
+  (remove-hook 'before-save-hook 'go-format-buffer t)) ;; Buffer-local removal
+
+(add-hook 'go-template-mode-hook 'go-template-disable-go-format)
+
+;; Automatically associate .tmpl files with go-template-mode.
+(add-to-list 'auto-mode-alist '("\\.tmpl\\'" . go-template-mode))
+
+(provide 'go-template-mode)
+
+;;; go-template ends here
+
+;;; groovy-mode --- groovy-mode configuration.
+
+;;; Commentary:
+
+;;; Code:
+
+(use-package groovy-mode)
+
+;;; groovy-mode ends here
+
 ;;; hcl --- hcl configuration.
 
 ;;; Commentary:
@@ -160,6 +207,16 @@ uncommented, otherwise a new import will be added."
 (use-package hcl-mode)
 
 ;;; hcl ends here
+
+;;; jenkinsfile-mode --- jenkinsfile-mode configuration.
+
+;;; Commentary:
+
+;;; Code:
+
+(use-package jenkinsfile-mode)
+
+;;; jenkinsfile-mode ends here
 
 ;;; json --- json configuration.
 
@@ -266,16 +323,147 @@ it will nest functions under classes when I don't want them to be."
 
 ;;; python ends here
 
-;;; yaml --- yaml configuration.
+;;; rego --- rego configuration.
 
 ;;; Commentary:
 
 ;;; Code:
 
-(use-package yaml-mode
-  :init
-  (add-to-list 'auto-mode-alist '("\\.yaml\\'" . yaml-mode))
-  (add-to-list 'auto-mode-alist '("\\.yml\\'" . yaml-mode)))
+(require 'treesit)
+
+(defconst rego-ts-mode--font-lock-rules
+  '(
+    :language rego
+    :override t
+    :feature keyword
+    ([(import) (package)] @font-lock-keyword-face
+     [(with) (as) (every) (some) (in) (not) (if) (contains) (else) (default)] @font-lock-keyword-face
+     "null" @font-lock-keyword-face)
+
+    :language rego
+    :feature constant
+    (["true" "false"] @font-lock-constant-face
+     (number) @font-lock-constant-face)
+
+    :language rego
+    :feature operator
+    ([(assignment_operator) (bool_operator) (arith_operator) (bin_operator)] @font-lock-operator-face)
+
+    :language rego
+    :feature string
+    ([(string) (raw_string)] @font-lock-string-face)
+
+    :language rego
+    :feature variable
+    ((term (ref (var))) @font-lock-variable-name-face
+     (expr_call func_arguments: (fn_args (expr) @font-lock-variable-use-face))
+     (rule_args (term) @font-lock-variable-use-face))
+
+    :language rego
+    :feature comment
+    ((comment) @font-lock-comment-face)
+
+    :language rego
+    :feature function
+    ((expr_call func_name: (fn_name (var) @font-lock-function-name-face))
+     (rule (rule_head (var) @font-lock-function-name-face)))
+
+    :language rego
+    :feature bracket
+    ([(open_paren) (close_paren) (open_bracket) (close_bracket) (open_curly) (close_curly)] @font-lock-delimiter-face)))
+
+(defconst rego-ts-mode-indent-offset 2
+  "Number of spaces for each indentation step in `rego-ts-mode'.")
+
+(defconst rego-ts-mode--indent-rules
+  `((rego
+     ;; Basic rules
+     ((parent-is "source_file") column-0 0)
+
+     ;; Closing brackets/braces/parentheses should align with their opening counterparts
+     ((node-is ")") parent-bol 0)
+     ((node-is "]") parent-bol 0)
+     ((node-is "}") parent-bol 0)
+
+     ;; After opening brace/bracket/parenthesis, indent the next line
+     ((node-is "{") parent-bol ,rego-ts-mode-indent-offset)
+     ((node-is "[") parent-bol ,rego-ts-mode-indent-offset)
+     ((node-is "(") parent-bol ,rego-ts-mode-indent-offset)
+
+     ;; Special handling for objects, arrays, and sets
+     ((parent-is "object") parent-bol ,rego-ts-mode-indent-offset)
+     ((parent-is "array") parent-bol ,rego-ts-mode-indent-offset)
+     ((parent-is "set") parent-bol ,rego-ts-mode-indent-offset)
+
+     ;; Rules for other constructs
+     ((parent-is "rule_body") parent-bol ,rego-ts-mode-indent-offset)
+     ((parent-is "query") parent-bol ,rego-ts-mode-indent-offset)
+     ((parent-is "literal") parent-bol ,rego-ts-mode-indent-offset)
+     ((parent-is "expr") parent-bol 0)
+
+     ;; Comments align with the previous line
+     ((node-is "comment") prev-line 0)
+
+     ;; Default case
+     (no-node parent-bol 0)))
+  "Tree-sitter indent rules for `rego-ts-mode'.")
+
+(define-derived-mode rego-ts-mode prog-mode "rego[ts]"
+  "Major mode for editing Rego code, using tree-sitter."
+
+  ;; Ensure tree-sitter is available and the grammar is loaded
+  (when (treesit-ready-p 'rego)
+    (treesit-parser-create 'rego)
+
+    ;; Configure font-lock
+    (setq-local treesit-font-lock-settings
+                (apply #'treesit-font-lock-rules
+                       rego-ts-mode--font-lock-rules))
+
+    (setq-local treesit-font-lock-feature-list
+                '((comment)
+                  (keyword string constant)
+                  (function variable module)
+                  (operator bracket)))
+
+    ;; Configure indentation
+    (setq-local treesit-simple-indent-rules rego-ts-mode--indent-rules)
+
+    ;; Enable tree-sitter
+    (treesit-major-mode-setup)))
+
+;; Register file association
+(add-to-list 'auto-mode-alist '("\\.rego\\'" . rego-ts-mode))
+
+(provide 'rego-ts-mode)
+
+;;; rego ends here
+
+;;; sql-indent --- sql-indent configuration.
+
+;;; Commentary:
+
+;;; Code:
+
+(use-package sql-indent)
+
+;;; sql-indent ends here
+
+;;; swift --- swift configuration.
+
+;;; Commentary:
+
+;;; Code:
+
+(use-package swift-mode)
+
+;;; swift ends here
+
+;;; yaml --- yaml configuration.
+
+;;; Commentary:
+
+;;; Code:
 
 (defun yqfmt (start end)
   "Format the current selecton or buffer with yq."
@@ -296,6 +484,16 @@ it will nest functions under classes when I don't want them to be."
   (goto-char current-point))
 
 ;;; yaml ends here
+
+;;; zig --- zig configuration.
+
+;;; Commentary:
+
+;;; Code:
+
+(use-package zig-mode)
+
+;;; zig ends here
 
 (provide 'lang)
 ;;; lang.el ends here
